@@ -402,8 +402,8 @@ static R_VAL ruby2d_sprite_ext_render(R_VAL self) {
     spr,
     NUM2INT(r_iv_get(self, "@clip_x")),
     NUM2INT(r_iv_get(self, "@clip_y")),
-    NUM2INT(r_iv_get(self, "@clip_w")),
-    NUM2INT(r_iv_get(self, "@clip_h"))
+    NUM2INT(r_iv_get(self, "@clip_width")),
+    NUM2INT(r_iv_get(self, "@clip_height"))
   );
 
   S2D_DrawSprite(spr);
