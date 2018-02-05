@@ -4,7 +4,7 @@ module Ruby2D
   class Sprite
     include Renderable
 
-    attr_accessor :x, :y, :width, :height,
+    attr_accessor :x, :y, :width, :height, :loop,
                   :clip_x, :clip_y, :clip_width, :clip_height, :data
 
     def initialize(path, opts = {})
@@ -19,39 +19,64 @@ module Ruby2D
       @x = opts[:x] || 0
       @y = opts[:y] || 0
       @z = opts[:z] || 0
-      # @width  = opts[:width]  || nil
-      # @height = opts[:height] || nil
-      @image_width  = 504
-      @image_height = 84
+      @width  = opts[:width]  || nil
+      @height = opts[:height] || nil
+      # @image_width  = 504
+      # @image_height = 84
 
       @clip_x = 0
       @clip_y = 0
-      @clip_width  = opts[:clip_width] || nil
-      @clip_height = @image_height
 
-      @time = opts[:time] || nil
+      @frame_time = opts[:time] || nil
+      @start_time = 0.0
       @loop = opts[:loop] || false
 
       @animations = {}
       @playing = false
-      @current_frame = 0
 
       ext_init(@path)
+
+      @clip_width  = opts[:clip_width] || nil
+      @clip_height = @height
       add
     end
 
     def play
-      @playing = true
+      unless @playing
+        @playing = true
+        restart_time
+      end
     end
 
+    def stop
+      @playing = false
+    end
+
+    def elapsed_time
+      (Time.now.to_f - @start_time) * 1000
+    end
+
+    def restart_time
+      @start_time = Time.now.to_f
+    end
+
+    # Update the sprite animation, called by `Sprite#ext_render`
     def update
-      if @clip_x >= (@image_width - @clip_width)
-        puts "@clip_x >="
-        @clip_x = 0
-      else
-        @clip_x = @clip_x + @clip_width
+      if @playing
+
+        # Advance the frame
+        unless elapsed_time <= @frame_time
+          @clip_x = @clip_x + @clip_width
+          restart_time
+        end
+
+        # After all frames, reset or stop
+        if @clip_x >= @width
+          @clip_x = 0
+          unless @loop then stop end
+        end
+
       end
-      puts "@clip_x: #{@clip_x}"
     end
 
     private
