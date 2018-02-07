@@ -21,41 +21,64 @@ module Ruby2D
       @z = opts[:z] || 0
       @width  = opts[:width]  || nil
       @height = opts[:height] || nil
-      # @image_width  = 504
-      # @image_height = 84
-
-      @clip_x = 0
-      @clip_y = 0
 
       @frame_time = opts[:time] || nil
       @start_time = 0.0
       @loop = opts[:loop] || false
 
-      @animations = {}
+      @animations = opts[:animations] || {}
       @playing = false
+      @playing_animation = :default
+      @default_frame = opts[:default] || 0
+      @current_frame = @default_frame
 
       ext_init(@path)
-
-      @clip_width  = opts[:clip_width] || nil
-      @clip_height = @height
+      @clip_x = 0
+      @clip_y = 0
+      @clip_width  = opts[:clip_width] || @width
+      @clip_height = opts[:clip_height] || @height
+      @animations[:default] = 0..(@width / @clip_width) - 1  # set default animation
       add
     end
 
-    def play
-      unless @playing
+    def play(animation = nil, loop = nil)
+      if !@playing || animation != nil
         @playing = true
+
+        # If the animation is a range, play through frames horizontally
+        if @animations[animation].class == Range
+          @playing_animation = animation
+          @current_frame = @animations[@playing_animation].first
+          set_frame_position
+        end
+
+        # Set looping
+        unless loop == nil
+          @loop = loop == :loop ? true : false
+        end
+
         restart_time
       end
     end
 
+    # Stop the current animation and set to the default frame
     def stop
       @playing = false
+      @current_frame = @default_frame
+      set_frame_position
     end
 
+    # Set the position of the clipping retangle based on the current frame
+    def set_frame_position
+      @clip_x = @current_frame * @clip_width
+    end
+
+    # Calculate the time in ms
     def elapsed_time
       (Time.now.to_f - @start_time) * 1000
     end
 
+    # Restart the timer
     def restart_time
       @start_time = Time.now.to_f
     end
@@ -66,20 +89,19 @@ module Ruby2D
 
         # Advance the frame
         unless elapsed_time <= @frame_time
-          @clip_x = @clip_x + @clip_width
+          @current_frame += 1
+          set_frame_position
           restart_time
         end
 
-        # After all frames, reset or stop
-        if @clip_x >= @width
-          @clip_x = 0
+        # Reset to the starting frame if all frames played
+        if @current_frame > @animations[@playing_animation].last
+          @current_frame = @animations[@playing_animation].first
+          set_frame_position
           unless @loop then stop end
         end
-
       end
     end
-
-    private
 
   end
 end
