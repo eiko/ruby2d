@@ -1,6 +1,6 @@
 require 'ruby2d'
 
-set title: "Ruby 2D — Sprite", width: 425, height: 150
+set title: "Ruby 2D — Sprite", width: 350, height: 150
 
 
 coin = Sprite.new(
@@ -9,6 +9,7 @@ coin = Sprite.new(
   time: 300,
   loop: true
 )
+
 coin.play
 
 boom = Sprite.new(
@@ -30,6 +31,43 @@ hero = Sprite.new(
   }
 )
 
+atlas = Sprite.new(
+  "texture_atlas.png",
+  x: 10, y: 100,
+  animations: {
+    count: [
+      {
+        x: 0, y: 0,
+        width: 35, height: 41,
+        time: 300
+      },
+      {
+        x: 26, y: 46,
+        width: 35, height: 38,
+        time: 400
+      },
+      {
+        x: 65, y: 10,
+        width: 32, height: 41,
+        time: 500
+      },
+      {
+        x: 10, y: 99,
+        width: 32, height: 38,
+        time: 600
+      },
+      {
+        x: 74, y: 80,
+        width: 32, height: 38,
+        time: 700
+      }
+    ]
+  }
+)
+
+atlas.play :count, :loop
+
+
 on :key_down do |e|
   close if e.key == 'escape'
 
@@ -37,9 +75,11 @@ on :key_down do |e|
   when 'p'
     coin.play
     boom.play
+    atlas.play :count
   when 's'
     coin.stop
     hero.stop
+    atlas.stop
   when 'right'
     hero.play :walk, :loop
   when 'up'
