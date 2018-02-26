@@ -910,7 +910,7 @@ static R_VAL ruby2d_window_ext_show(R_VAL self) {
   }
 
   // Load controller mappings
-  #if !RUBY2D_IOS_TVOS
+  #if !RUBY2D_IOS_TVOS && !WINDOWS || MINGW
     #include <pwd.h>
 
     char *homedir;
