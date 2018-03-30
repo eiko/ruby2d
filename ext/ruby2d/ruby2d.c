@@ -920,7 +920,7 @@ static R_VAL ruby2d_window_ext_show(R_VAL self) {
   int width   = NUM2INT(r_iv_get(self, "@width"));
   int height  = NUM2INT(r_iv_get(self, "@height"));
   int fps_cap = NUM2INT(r_iv_get(self, "@fps_cap"));
-  rb_p(fps_cap);
+  rb_p(r_iv_get(self, "@fps_cap"));
   int flags   = 0;
 
   // Get window flags
